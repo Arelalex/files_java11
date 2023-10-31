@@ -20,19 +20,24 @@ public class ReadingFileTest {
 
     ClassLoader cl = ReadingFileTest.class.getClassLoader();
     Gson gson = new Gson();
+    boolean nameExist = false;
 
     @Test
     void readingPdfFromZip() throws Exception {
         try (InputStream stream = cl.getResourceAsStream("sample.zip");
              ZipInputStream zis = new ZipInputStream(stream)) {
+
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                if (entry.getName().contains("fw9.pdf")) {
+                final String name = entry.getName();
+                if (name.contains("fw9.pdf")) {
                     PDF pdf = new PDF(zis);
+                    nameExist = true;
                     Assertions.assertTrue(pdf.title.contains("Form W-9 (Rev. October 2018)"));
                     break;
                 }
             }
+            Assertions.assertTrue(nameExist);
         }
     }
 
@@ -40,10 +45,12 @@ public class ReadingFileTest {
     void readingCsvFromZip() throws Exception {
         try (InputStream stream = cl.getResourceAsStream("sample.zip");
              ZipInputStream zis = new ZipInputStream(stream)) {
+
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 if (entry.getName().contains("sample-csv.csv")) {
                     CSVReader csvReader = new CSVReader(new InputStreamReader(zis));
+                    nameExist = true;
                     List<String[]> csvContent = csvReader.readAll();
                     Assertions.assertArrayEquals(new String[]{"Role 1 Emails", "Name", "Surname"}, csvContent.get(0));
                     Assertions.assertArrayEquals(new String[]{"alex_mosk@bk.ru", "Alex", "Moskotina"}, csvContent.get(1));
@@ -51,6 +58,7 @@ public class ReadingFileTest {
                     break;
                 }
             }
+            Assertions.assertTrue(nameExist);
         }
     }
 
@@ -58,10 +66,12 @@ public class ReadingFileTest {
     void readingXlsxFromZip() throws Exception {
         try (InputStream stream = cl.getResourceAsStream("sample.zip");
              ZipInputStream zis = new ZipInputStream(stream)) {
+
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 if (entry.getName().contains("sample-excel.xlsx")) {
                     XLS xls = new XLS(zis);
+                    nameExist = true;
                     Assertions.assertEquals(xls.excel
                             .getSheetAt(0)
                             .getRow(0)
@@ -70,6 +80,7 @@ public class ReadingFileTest {
                     break;
                 }
             }
+            Assertions.assertTrue(nameExist);
         }
     }
 
